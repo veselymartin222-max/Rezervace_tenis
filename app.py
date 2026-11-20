@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import psycopg2
 from datetime import timedelta, date
@@ -8,8 +9,16 @@ st.set_page_config(page_title="Pronájem kurtů TJ Sokol Hrabová", layout="wide
 st.title("🎾 Pronájem kurtů TJ Sokol Hrabová")
 
 # --- PŘIPOJENÍ K DATABÁZI NEON.TECH ---
+def get_database_url():
+    url = os.environ.get("DATABASE_URL")
+    if url:
+        return url
+    if "DATABASE_URL" in st.secrets:
+        return st.secrets["DATABASE_URL"]
+    raise RuntimeError("Chybí DATABASE_URL v proměnných prostředí i v st.secrets.")
+
 def get_connection():
-    return psycopg2.connect(st.secrets["DATABASE_URL"])
+    return psycopg2.connect(get_database_url())
 
 def init_db():
     conn = get_connection()
